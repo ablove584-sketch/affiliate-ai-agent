@@ -1,30 +1,20 @@
 import os
 import asyncio
 import random
-import requests
 from telegram import Bot
 from datetime import datetime
+import google.generativeai as genai
 
 # المتغيرات من البيئة
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
-HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# استخدام نموذج Qwen 2.5 (أحدث وأفضل)
-API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct"
-headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}"}
+# تهيئة Gemini
+genai.configure(api_key=GEMINI_API_KEY)
 
-def query_huggingface(prompt):
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 200,
-            "temperature": 0.7,
-            "return_full_text": False
-        }
-    }
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()
+# استخدام النموذج الصحيح
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 async def generate_ad():
     products = [
@@ -40,7 +30,7 @@ async def generate_ad():
     
     product = random.choice(products)
     
-    prompt = f"""أنت مساعد تسويقي محترف. اكتب إعلاناً جذاباً بالعربي عن: {product}
+    prompt = f"""اكتب إعلان تسويقي جذاب ومختصر بالعربي عن: {product}
 
 الشروط:
 - استخدم 2-3 إيموجي
@@ -51,21 +41,8 @@ async def generate_ad():
 ابدأ الإعلان مباشرة."""
 
     try:
-        output = query_huggingface(prompt)
-        
-        # استخراج النص
-        if isinstance(output, list) and len(output) > 0:
-            ad_text = output[0].get('generated_text', '')
-        elif isinstance(output, dict):
-            ad_text = output.get('generated_text', '')
-        else:
-            ad_text = str(output)
-        
-        # تنظيف النص
-        ad_text = ad_text.strip()
-        
-        return ad_text if ad_text else "⚠️ لم يتم توليد الإعلان"
-        
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         return f"❌ خطأ: {str(e)}"
 
