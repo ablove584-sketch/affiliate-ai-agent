@@ -14,7 +14,28 @@ HISTORY_FILE = "post_history.json"
 
 # تهيئة Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+# محاولة استخدام عدة نماذج بالترتيب
+MODELS_TO_TRY = [
+    'gemini-2.5-flash',
+    'gemini-2.5-pro', 
+    'gemini-1.5-flash',
+    'gemini-1.5-pro'
+]
+
+model = None
+for model_name in MODELS_TO_TRY:
+    try:
+        test_model = genai.GenerativeModel(model_name)
+        test_model.generate_content("test")
+        model = test_model
+        print(f"✅ تم الاتصال بنموذج: {model_name}")
+        break
+    except Exception:
+        print(f"⚠️ نموذج {model_name} غير متاح، نجرب التالي...")
+        continue
+
+if model is None:
+    raise Exception("لا توجد نماذج Gemini متاحة!")
 
 # ============ أنواع المحتوى ============
 CONTENT_TYPES = [
