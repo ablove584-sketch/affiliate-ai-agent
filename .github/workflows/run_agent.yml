@@ -2,8 +2,8 @@ name: Run Affiliate AI Agent
 
 on:
   schedule:
-    - cron: '0 */4 * * *'  # يعمل كل 4 ساعات
-  workflow_dispatch:  # يمكن تشغيله يدوياً أيضاً
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 
 jobs:
   run-agent:
@@ -11,10 +11,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
