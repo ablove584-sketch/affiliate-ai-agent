@@ -1,7 +1,4 @@
 .env
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-pip-log.txt
+post_history.json
